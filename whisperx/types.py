@@ -5,15 +5,18 @@ class SingleWordSegment(TypedDict):
     """
     A single word of a speech.
     """
+
     word: str
     start: float
     end: float
     score: float
 
+
 class SingleCharSegment(TypedDict):
     """
     A single char of a speech.
     """
+
     char: str
     start: float
     end: float
@@ -46,13 +49,19 @@ class TranscriptionResult(TypedDict):
     """
     A list of segments and word segments of a speech.
     """
+
     segments: List[SingleSegment]
     language: str
+
+
+class TranscriptionError:
+    LANGUAGE_DETECTION_ERROR = 1
 
 
 class AlignedTranscriptionResult(TypedDict):
     """
     A list of segments and word segments of a speech.
     """
+
     segments: List[SingleAlignedSegment]
     word_segments: List[SingleWordSegment]
