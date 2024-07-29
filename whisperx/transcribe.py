@@ -33,7 +33,7 @@ def cli():
     parser.add_argument("--language", type=str, default=None, choices=sorted(LANGUAGES.keys()) + sorted([k.title() for k in TO_LANGUAGE_CODE.keys()]), help="language spoken in the audio, specify None to perform language detection")
 
     # alignment params
-    parser.add_argument("--align_model", default=None, help="Name of phoneme-level ASR model to do alignment")
+    parser.add_argument("--align_model_path", default=None, help="Name of phoneme-level ASR model to do alignment")
     parser.add_argument("--interpolate_method", default="nearest", choices=["nearest", "linear", "ignore"], help="For word .srt, method to assign timestamps to non-aligned words, or merge them into neighbouring.")
     parser.add_argument("--no_align", action='store_true', help="Do not perform phoneme alignment")
     parser.add_argument("--return_char_alignments", action='store_true', help="Return character-level alignments in the output json file")
@@ -91,7 +91,7 @@ def cli():
     # model_flush: bool = args.pop("model_flush")
     os.makedirs(output_dir, exist_ok=True)
 
-    align_model: str = args.pop("align_model")
+    align_model_path: str = args.pop("align_model_path")
     interpolate_method: str = args.pop("interpolate_method")
     no_align: bool = args.pop("no_align")
     task : str = args.pop("task")
@@ -185,7 +185,7 @@ def cli():
     if not no_align:
         tmp_results = results
         results = []
-        align_model, align_metadata = load_align_model(align_language, device, model_name=align_model)
+        align_model, align_metadata = load_align_model(align_language, device, model_path=align_model_path)
         for result, audio_path in tmp_results:
             # >> Align
             if len(tmp_results) > 1:

@@ -420,9 +420,7 @@ def load_model(
     if vad_options is not None:
         default_vad_options.update(vad_options)
 
-    if vad_model is not None:
-        vad_model = vad_model
-    else:
+    if vad_model is None:
         vad_model = load_vad_model(
             torch.device(device), use_auth_token=None, **default_vad_options
         )
