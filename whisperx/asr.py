@@ -1,5 +1,4 @@
 import os
-import warnings
 from typing import List, Union, Optional, NamedTuple
 
 import ctranslate2
