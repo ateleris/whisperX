@@ -52,7 +52,7 @@ DEFAULT_ALIGN_MODELS_HF = {
     "tr": "mpoyraz/wav2vec2-xls-r-300m-cv7-turkish",
     "da": "saattrupdan/wav2vec2-xls-r-300m-ftspeech",
     "he": "imvladikon/wav2vec2-xls-r-300m-hebrew",
-    "vi": 'nguyenvulebinh/wav2vec2-base-vi',
+    "vi": "nguyenvulebinh/wav2vec2-base-vi",
     "ko": "kresnik/wav2vec2-large-xlsr-korean",
     "ur": "kingabzpro/wav2vec2-large-xls-r-300m-Urdu",
     "te": "anuragshas/wav2vec2-large-xlsr-53-telugu",
@@ -62,6 +62,7 @@ DEFAULT_ALIGN_MODELS_HF = {
     "no": "NbAiLab/nb-wav2vec2-1b-bokmaal",
     "nn": "NbAiLab/nb-wav2vec2-300m-nynorsk",
 }
+
 
 def load_align_model(language_code, device, model_path: str):
     if language_code in DEFAULT_ALIGN_MODELS_TORCH:
@@ -74,11 +75,14 @@ def load_align_model(language_code, device, model_path: str):
 
     if pipeline_type == "torchaudio":
         bundle = torchaudio.pipelines.__dict__[model_name]
-                
-        state_dict = torch.load(model_path, map_location=device)
+
         align_model = bundle.get_model()
-        align_model.load_state_dict(state_dict)
-        
+        state_dict = torch.load(model_path, map_location=device)
+        try:
+            align_model.load_state_dict(state_dict)
+        except Exception:
+            pass
+
         align_model = align_model.to(device)
         labels = bundle.get_labels()
         align_dictionary = {c.lower(): i for i, c in enumerate(labels)}
@@ -88,15 +92,24 @@ def load_align_model(language_code, device, model_path: str):
             align_model = Wav2Vec2ForCTC.from_pretrained(model_path)
         except Exception as e:
             print(e)
-            raise ValueError(f'Error loading model for language "{language_code}" from {model_path}')
-        
+            raise ValueError(
+                f'Error loading model for language "{language_code}" from {model_path}'
+            )
+
         align_model = align_model.to(device)
         labels = processor.tokenizer.get_vocab()
-        align_dictionary = {char.lower(): code for char, code in processor.tokenizer.get_vocab().items()}
+        align_dictionary = {
+            char.lower(): code for char, code in processor.tokenizer.get_vocab().items()
+        }
 
-    align_metadata = {"language": language_code, "dictionary": align_dictionary, "type": pipeline_type}
+    align_metadata = {
+        "language": language_code,
+        "dictionary": align_dictionary,
+        "type": pipeline_type,
+    }
 
     return align_model, align_metadata
+
 
 def align(
     transcript: Iterable[SingleSegment],
@@ -230,7 +243,9 @@ def align(
             lengths = None
 
         with torch.inference_mode():
-            if model_type == "huggingface":
+            if model_type == "torchaudio":
+                emissions, _ = model(waveform_segment.to(device), lengths=lengths)
+            elif model_type == "huggingface":
                 emissions = model(waveform_segment.to(device)).logits
             else:
                 raise NotImplementedError(
