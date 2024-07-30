@@ -74,11 +74,8 @@ def load_align_model(language_code, device, model_path: str):
 
     if pipeline_type == "torchaudio":
         bundle = torchaudio.pipelines.__dict__[model_name]
-        
-        model_filename = next(os.walk(model_path))[2][0]
-        full_model_path = os.path.join(model_path, model_filename)
-        
-        state_dict = torch.load(full_model_path, map_location=device)
+                
+        state_dict = torch.load(model_path, map_location=device)
         align_model = bundle.get_model()
         align_model.load_state_dict(state_dict)
         
