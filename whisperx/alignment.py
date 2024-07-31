@@ -78,11 +78,7 @@ def load_align_model(language_code, device, model_path: str):
 
         align_model = bundle.get_model()
         state_dict = torch.load(model_path, map_location=device)
-        try:
-            align_model.load_state_dict(state_dict)
-        except Exception:
-            pass
-
+        align_model.load_state_dict(state_dict)
         align_model = align_model.to(device)
         labels = bundle.get_labels()
         align_dictionary = {c.lower(): i for i, c in enumerate(labels)}
