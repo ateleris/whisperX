@@ -64,7 +64,7 @@ DEFAULT_ALIGN_MODELS_HF = {
 }
 
 
-def load_align_model(language_code, device, model_path: str):
+def load_align_model(language_code, device, model_dir: str, file_name: str | None):
     if language_code in DEFAULT_ALIGN_MODELS_TORCH:
         pipeline_type = "torchaudio"
         model_name = DEFAULT_ALIGN_MODELS_TORCH[language_code]
@@ -75,21 +75,19 @@ def load_align_model(language_code, device, model_path: str):
 
     if pipeline_type == "torchaudio":
         bundle = torchaudio.pipelines.__dict__[model_name]
-
-        align_model = bundle.get_model()
-        state_dict = torch.load(model_path, map_location=device)
-        align_model.load_state_dict(state_dict)
+        dl_kwargs = {"model_dir": model_dir, "file_name": file_name}
+        align_model = bundle.get_model(dl_kwargs=dl_kwargs)
         align_model = align_model.to(device)
         labels = bundle.get_labels()
         align_dictionary = {c.lower(): i for i, c in enumerate(labels)}
     else:
         try:
-            processor = Wav2Vec2Processor.from_pretrained(model_path)
-            align_model = Wav2Vec2ForCTC.from_pretrained(model_path)
+            processor = Wav2Vec2Processor.from_pretrained(model_dir)
+            align_model = Wav2Vec2ForCTC.from_pretrained(model_dir)
         except Exception as e:
             print(e)
             raise ValueError(
-                f'Error loading model for language "{language_code}" from {model_path}'
+                f'Error loading model for language "{language_code}" from {model_dir}'
             )
 
         align_model = align_model.to(device)

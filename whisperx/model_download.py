@@ -63,8 +63,7 @@ def download_pytorch_models(output_dir):
             save_dir = os.path.join(output_dir, language)
             os.makedirs(save_dir, exist_ok=True)
             bundle = torchaudio.pipelines.__dict__[model_name]
-            model = bundle.get_model()
-            torch.save(model.state_dict(), os.path.join(save_dir, "model.pt"))
+            bundle.get_model(dl_kwargs={"model_dir": save_dir, "file_name": "model.pt"})
             print(f"Downloaded and saved model for language {language} at {save_dir}")
         except Exception as e:
             print(f"Error downloading {model_name}: {str(e)}")
