@@ -1,8 +1,8 @@
 torch==2.3
-torchaudio>=2
 faster-whisper==1.0.0
 transformers
 pandas
 setuptools>=65
 nltk
 pyannote.audio==3.3.1
+torchaudio
