@@ -19,6 +19,11 @@ def transcribe_internal(
     numOfThreads,
     batchSize,
 ) -> TranscriptionResult | int:
+    
+    if processingDevice == 'cuda':
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+
     vad_model = vad.load_vad_model(
         torch.device(processingDevice), model_fp=vad_model_path
     )
@@ -43,6 +48,11 @@ def transcribe_internal(
 def align_transcription_internal(
     audio, result, alignment_model_dir, alignment_model_file, processingDevice
 ) -> AlignedTranscriptionResult:
+    
+    if processingDevice == 'cuda':
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+
     align_model, align_metadata = load_align_model(
         language_code=result["language"],
         device=processingDevice,
@@ -68,6 +78,10 @@ def align_transcription_internal(
 def diarize_transcription_internal(
     audio, result, pyannoteConfigPath, processingDevice
 ) -> Any:
+    if processingDevice == 'cuda':
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+
     diarize_model = DiarizationPipeline(
         model_name=pyannoteConfigPath, device=processingDevice
     )
