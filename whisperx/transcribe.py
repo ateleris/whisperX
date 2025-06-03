@@ -76,7 +76,7 @@ def align_transcription_internal(
 
 
 def diarize_transcription_internal(
-    audio, result, pyannoteConfigPath, processingDevice
+    audio, result, pyannoteConfigPath, processingDevice, numSpeakers = None, minSpeakers = None, maxSpeakers = None
 ) -> Any:
     if processingDevice == 'cuda':
         torch.backends.cuda.matmul.allow_tf32 = True
@@ -85,6 +85,6 @@ def diarize_transcription_internal(
     diarize_model = DiarizationPipeline(
         model_name=pyannoteConfigPath, device=processingDevice
     )
-    diarize_segments = diarize_model(audio)
+    diarize_segments = diarize_model(audio, num_speakers=numSpeakers, min_speakers=minSpeakers, max_speakers=maxSpeakers)
 
     return assign_word_speakers(diarize_segments, result)
