@@ -2,7 +2,7 @@ faster-whisper~=1.0.3
 transformers~=4.46.0
 pandas~=2.2.3
 numpy<2
-setuptools>=65
+setuptools >=65, <81
 nltk~=3.9.1
 ctranslate2~=4.5.0
 pyannote.audio~=3.3.1
